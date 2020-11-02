@@ -15,7 +15,9 @@
       }
     }
   },
-  "required": ["builders"],
+  "required": [
+    "builders"
+  ],
   "definitions": {
     "builder": {
       "type": "object",
@@ -32,28 +34,20 @@
               "description": "Builder description."
             }
           },
-          "required": ["schema", "description"]
+          "required": [
+            "schema",
+            "description"
+          ]
         },
         {
-          "anyOf": [
-            {
-              "properties": {
-                "implementation": {
-                  "type": "string",
-                  "description": "The next generation builder module."
-                }
-              },
-              "required": ["implementation"]
-            },
-            {
-              "properties": {
-                "class": {
-                  "type": "string",
-                  "description": "The builder class module."
-                }
-              },
-              "required": ["class"]
+          "properties": {
+            "implementation": {
+              "type": "string",
+              "description": "The next generation builder module."
             }
+          },
+          "required": [
+            "implementation"
           ]
         }
       ]

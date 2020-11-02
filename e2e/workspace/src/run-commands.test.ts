@@ -43,7 +43,7 @@ forEachCli(() => {
       done();
     }, 120000);
 
-    it('should interpolate provided arguments', async (done) => {
+    it('vvvvshould interpolate provided arguments', async (done) => {
       ensureProject();
       const myapp = uniq('myapp1');
 

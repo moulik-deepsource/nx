@@ -4,6 +4,7 @@ import * as path from 'path';
 export interface WorkspaceDefinition {
   projects: { [projectName: string]: ProjectDefinition };
   defaultProject: string | undefined;
+  cli: { defaultCollection: string; };
 }
 
 export interface ProjectDefinition {
@@ -38,35 +39,58 @@ export class Workspaces {
     return buildersJson['$schema'] === '@nrwl/tao/src/builders-schema.json';
   }
 
-  readBuilderSchema(target: TargetDefinition) {
+  isNxSchematic(collectionName: string, schematicName: string) {
+    const schema = this.readSchematic(collectionName, schematicName).schema;
+    return schema['$schema'] === '@nrwl/tao/src/schematic-schema.json';
+  }
+
+  readBuilder(target: TargetDefinition) {
     try {
       const { builder, buildersFilePath, buildersJson } = this.readBuildersJson(
         target
       );
+      const builderDir = path.dirname(buildersFilePath);
+      const buildConfig = buildersJson.builders[builder];
       const schemaPath = path.join(
-        path.dirname(buildersFilePath),
-        buildersJson.builders[builder].schema || ''
+        builderDir,
+        buildConfig.schema || ''
       );
-      return JSON.parse(
-        fs.readFileSync(require.resolve(schemaPath)).toString()
+      const schema = JSON.parse(
+        fs.readFileSync(schemaPath).toString()
       );
+      const module = require(path.join(
+        builderDir,
+        buildConfig.implementation
+      ));
+      const implementation = module.default;
+      return { schema, implementation };
     } catch (e) {
       throw new Error(`Unable to resolve ${target.builder}.\n${e.message}`);
     }
   }
 
-  readBuilderFunction(target: TargetDefinition) {
+  readSchematic(collectionName: string, schematicName: string) {
     try {
-      const { builder, buildersFilePath, buildersJson } = this.readBuildersJson(
-        target
+      const { schematicsFilePath, schematicsJson, normalizedSchematicName } = this.readSchematicsJson(
+        collectionName, schematicName
+      );
+      const schematicsDir = path.dirname(schematicsFilePath);
+      const schematicConfig = schematicsJson.schematics[normalizedSchematicName];
+      const schemaPath = path.join(
+        schematicsDir,
+        schematicConfig.schema || ''
+      );
+      const schema = JSON.parse(
+        fs.readFileSync(schemaPath).toString()
       );
       const module = require(path.join(
-        path.dirname(buildersFilePath),
-        buildersJson.builders[builder].implementation
+        schematicsDir,
+        schematicConfig.implementation ? schematicConfig.implementation : schematicConfig.factory
       ));
-      return module.default;
+      const implementation = module.default;
+      return { schema, implementation };
     } catch (e) {
-      throw new Error(`Unable to resolve ${target.builder}.\n${e.message}`);
+      throw new Error(`Unable to resolve ${collectionName}:${schematicName}.\n${e.message}`);
     }
   }
 
@@ -87,5 +111,36 @@ export class Workspaces {
       );
     }
     return { builder, buildersFilePath, buildersJson };
+  }
+
+  private readSchematicsJson(collectionName: string, schematic: string) {
+    const packageJsonPath = require.resolve(`${collectionName}/package.json`);
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath).toString());
+    const schematicsFile = packageJson.schematics;
+    const schematicsFilePath = require.resolve(
+      path.join(path.dirname(packageJsonPath), schematicsFile)
+    );
+    const schematicsJson = JSON.parse(
+      fs.readFileSync(schematicsFilePath).toString()
+    );
+
+    let normalizedSchematicName;
+    for (let k of Object.keys(schematicsJson.schematics)) {
+      if (k === schematic) {
+        normalizedSchematicName = k;
+        break;
+      }
+      if (schematicsJson.schematics[k].aliases && schematicsJson.schematics[k].aliases.indexOf(schematic) > -1) {
+        normalizedSchematicName = k;
+        break;
+      }
+    }
+
+    if (!normalizedSchematicName) {
+      throw new Error(
+        `Cannot find schematic '${schematic}' in ${schematicsFilePath}.`
+      );
+    }
+    return { schematicsFilePath, schematicsJson, normalizedSchematicName };
   }
 }

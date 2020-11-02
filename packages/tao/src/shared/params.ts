@@ -1,6 +1,6 @@
 import { strings } from '@angular-devkit/core';
 import { ParsedArgs } from 'minimist';
-import { TargetDefinition } from './workspace';
+import { TargetDefinition, WorkspaceDefinition } from './workspace';
 
 type Properties = {
   [p: string]: {
@@ -235,7 +235,7 @@ function setPropertyDefault(
   }
 }
 
-export function combineOptions(
+export function combineOptionsForBuilder(
   commandLineOpts: Options,
   config: string,
   target: TargetDefinition,
@@ -245,6 +245,20 @@ export function combineOptions(
   const configOpts =
     config && target.configurations ? target.configurations[config] || {} : {};
   const combined = { ...target.options, ...configOpts, ...r };
+  setDefaults(combined, schema);
+  validateOptsAgainstSchema(combined, schema);
+  return combined;
+}
+
+export function combineOptionsForSchematic(
+  commandLineOpts: Options,
+  collectionName: string,
+  schematicName: string,
+  ws: WorkspaceDefinition,
+  schema: Schema
+) {
+  const r = convertAliases(coerceTypes(commandLineOpts, schema), schema, false);
+  const combined = { ...r }; // we need to set schematic defaults
   setDefaults(combined, schema);
   validateOptsAgainstSchema(combined, schema);
   return combined;

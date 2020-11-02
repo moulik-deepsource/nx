@@ -2,7 +2,7 @@ import * as chalk from 'chalk';
 import * as minimist from 'minimist';
 import { getLogger } from '../shared/logger';
 import {
-  combineOptions,
+  combineOptionsForBuilder,
   convertToCamelCase,
   handleErrors,
   Options,
@@ -142,8 +142,8 @@ export async function run(root: string, args: string[], isVerbose: boolean) {
     const target =
       workspaceDefinition.projects[opts.project].architect[opts.target];
     if (ws.isNxBuilder(target)) {
-      const schema = ws.readBuilderSchema(target);
-      const combinedOptions = combineOptions(
+      const { schema, implementation } = ws.readBuilder(target);
+      const combinedOptions = combineOptionsForBuilder(
         opts.runOptions,
         opts.configuration,
         target,
@@ -153,8 +153,7 @@ export async function run(root: string, args: string[], isVerbose: boolean) {
         printRunHelp(opts, schema, logger);
         return 0;
       }
-      const builderFn = ws.readBuilderFunction(target);
-      return await builderFn(combinedOptions);
+      return await implementation(combinedOptions);
     } else {
       return (await import('./ngcli-adapter')).run(logger, root, opts);
     }
