@@ -29,6 +29,7 @@ describe('params', () => {
       });
     });
 
+
     it('should handle numbers', () => {
       const opts = coerceTypes({ a: 1, b: '2', c: '3' }, {
         properties: {
@@ -222,7 +223,8 @@ describe('params', () => {
               default: true,
             },
           },
-        }
+        },
+        []
       );
 
       expect(opts).toEqual({ b: true, c: false });
@@ -246,10 +248,31 @@ describe('params', () => {
               },
             },
           },
-        }
+        },
+        []
       );
 
       expect(opts).toEqual({ a: [{ key: 'inner' }, { key: 'inner' }] });
+    });
+
+    it('should set defaults from argv', () => {
+      const opts = setDefaults(
+        { },
+        {
+          properties: {
+            a: {
+              type: 'string',
+              $default: {
+                $source: 'argv',
+                index: 0
+              }
+            }
+          },
+        },
+        ["argv-value"]
+      );
+
+      expect(opts).toEqual({ a: 'argv-value' });
     });
   });
 

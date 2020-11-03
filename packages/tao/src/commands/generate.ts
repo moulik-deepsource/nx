@@ -6,7 +6,7 @@ import { WorkspaceDefinition, Workspaces } from '../shared/workspace';
 import { readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'fs';
 import { mkdirpSync, rmdirSync } from 'fs-extra';
 import * as path from 'path';
-import * as chalk from 'chalk';
+const chalk = require('chalk');
 
 export interface GenerateOptions {
   collectionName: string;
@@ -326,11 +326,11 @@ export function flushChanges(root: string, fileChanges: FileChange[]) {
 function printChanges(fileChanges: FileChange[]) {
   fileChanges.forEach(f => {
     if (f.type === 'CREATE') {
-      console.log(`${chalk.default.green('CREATE')} ${f}`)
+      console.log(`${chalk.green('CREATE')} ${f.path}`)
     } else if (f.type === 'UPDATE') {
-      console.log(`${chalk.default.white('UPDATE')} ${f}`)
+      console.log(`${chalk.white('UPDATE')} ${f.path}`)
     } else if (f.type === 'DELETE') {
-      console.log(`${chalk.default.yellow('DELETE')} ${f}`)
+      console.log(`${chalk.yellow('DELETE')} ${f.path}`)
     }
   });
 }

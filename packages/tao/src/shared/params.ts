@@ -11,6 +11,7 @@ type Properties = {
     alias?: string;
     description?: string;
     default?: string | number | boolean | string[];
+    $default?: { $source: 'argv', index: number }
   };
 };
 export type Schema = {
@@ -113,7 +114,7 @@ export function convertAliases(
         }
         acc['--'].push({
           name: k,
-          possible: [],
+          possible: []
         });
       } else {
         acc[k] = opts[k];
@@ -124,7 +125,8 @@ export function convertAliases(
 }
 
 export class SchemaError {
-  constructor(public readonly message: string) {}
+  constructor(public readonly message: string) {
+  }
 }
 
 export function validateOptsAgainstSchema(
@@ -162,7 +164,8 @@ function validateProperty(propName: string, value: any, schema: any) {
       try {
         validateProperty(propName, value, r);
         passes = true;
-      } catch (e) {}
+      } catch (e) {
+      }
     });
     if (!passes) throwInvalidSchema(propName, schema);
     return;
@@ -196,28 +199,33 @@ function throwInvalidSchema(propName: string, schema: any) {
   );
 }
 
-export function setDefaults(opts: { [k: string]: any }, schema: Schema) {
-  setDefaultsInObject(opts, schema.properties);
+export function setDefaults(opts: { [k: string]: any }, schema: Schema, argv: string[]) {
+  setDefaultsInObject(opts, schema.properties, argv);
   return opts;
 }
 
 function setDefaultsInObject(
   opts: { [k: string]: any },
-  properties: Properties
+  properties: Properties,
+  argv: string[]
 ) {
   Object.keys(properties).forEach((p) => {
-    setPropertyDefault(opts, p, properties[p]);
+    setPropertyDefault(opts, p, properties[p], argv);
   });
 }
 
 function setPropertyDefault(
   opts: { [k: string]: any },
   propName: string,
-  schema: any
+  schema: any,
+  argv: string[]
 ) {
   if (schema.type !== 'object' && schema.type !== 'array') {
     if (opts[propName] === undefined && schema.default !== undefined) {
       opts[propName] = schema.default;
+    }
+    if (opts[propName] === undefined && schema.$default !== undefined) {
+      opts[propName] = argv[schema.$default.index];
     }
   } else if (schema.type === 'array') {
     const items = schema.items || {};
@@ -227,11 +235,11 @@ function setPropertyDefault(
       items.type === 'object'
     ) {
       opts[propName].forEach((valueInArray) =>
-        setDefaultsInObject(valueInArray, items.properties || {})
+        setDefaultsInObject(valueInArray, items.properties || {}, argv)
       );
     }
   } else {
-    setDefaultsInObject(opts[propName], schema.properties);
+    setDefaultsInObject(opts[propName], schema.properties, argv);
   }
 }
 
@@ -245,7 +253,7 @@ export function combineOptionsForBuilder(
   const configOpts =
     config && target.configurations ? target.configurations[config] || {} : {};
   const combined = { ...target.options, ...configOpts, ...r };
-  setDefaults(combined, schema);
+  setDefaults(combined, schema, commandLineOpts['_'] as string[] || []);
   validateOptsAgainstSchema(combined, schema);
   return combined;
 }
@@ -259,7 +267,7 @@ export function combineOptionsForSchematic(
 ) {
   const r = convertAliases(coerceTypes(commandLineOpts, schema), schema, false);
   const combined = { ...r }; // we need to set schematic defaults
-  setDefaults(combined, schema);
+  setDefaults(combined, schema, commandLineOpts['_'] as string[] || []);
   validateOptsAgainstSchema(combined, schema);
   return combined;
 }

@@ -16,6 +16,7 @@ export default function (schema: Schema) {
       options: {
         command: schema.command,
         cwd: schema.cwd,
+        envFile: schema.envFile,
       },
     };
     return json;

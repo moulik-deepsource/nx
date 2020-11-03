@@ -1,4 +1,3 @@
-import * as chalk from 'chalk';
 import * as minimist from 'minimist';
 import { getLogger } from '../shared/logger';
 import {
@@ -10,6 +9,7 @@ import {
 } from '../shared/params';
 import { commandName, printHelp } from '../shared/print-help';
 import { WorkspaceDefinition, Workspaces } from '../shared/workspace';
+const chalk = require('chalk');
 
 export interface RunOptions {
   project: string;
