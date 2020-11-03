@@ -5,7 +5,7 @@ import * as path from 'path';
 import { mkdirpSync } from 'fs-extra';
 import { FileChange, flushChanges, FsTree } from './generate';
 
-describe('generate', () => {
+describe('tree', () => {
   describe('FsTree', () => {
     let dir;
     let tree: FsTree;

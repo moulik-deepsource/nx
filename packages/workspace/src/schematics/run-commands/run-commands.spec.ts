@@ -11,7 +11,18 @@ describe('run-commands', () => {
     appTree = await runSchematic('lib', { name: 'lib' }, t);
   });
 
-  it('should generate files', async () => {
+  it('should generate a target', async () => {
+    const opts = {
+      name: 'custom',
+      project: 'lib',
+      command: 'echo 1',
+      cwd: '/packages/foo',
+      outputs: '/dist/a, /dist/b, /dist/c',
+    };
+
+    // await runCommands(opts)(host)
+
+
     const tree = await runSchematic(
       'run-commands',
       {
