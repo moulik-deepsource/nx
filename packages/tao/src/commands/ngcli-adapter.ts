@@ -14,7 +14,7 @@ import {
   workspaces
 } from '@angular-devkit/core';
 import { NodeJsSyncHost } from '@angular-devkit/core/node';
-import { coerceTypes, convertAliases, Options, Schema } from '../shared/params';
+import { coerceTypesInOptions, convertAliases, Options, Schema } from '../shared/params';
 import { printRunHelp, RunOptions } from './run';
 import {
   FileSystemCollectionDescription,
@@ -29,7 +29,7 @@ import { detectPackageManager } from '../shared/detect-package-manager';
 import { GenerateOptions, printGenHelp } from './generate';
 
 function normalizeOptions(opts: Options, schema: Schema): Options {
-  return convertAliases(coerceTypes(opts, schema), schema, false);
+  return convertAliases(coerceTypesInOptions(opts, schema), schema, false);
 }
 
 export async function run(logger: any, root: string, opts: RunOptions) {

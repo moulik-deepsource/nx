@@ -1,6 +1,6 @@
 import { ParsedArgs } from 'minimist';
 import {
-  coerceTypes,
+  coerceTypesInOptions,
   convertAliases,
   convertToCamelCase,
   lookupUnmatched,
@@ -12,7 +12,7 @@ import {
 describe('params', () => {
   describe('coerceTypes', () => {
     it('should handle booleans', () => {
-      const opts = coerceTypes({ a: true, b: 'true', c: false, d: 'true' }, {
+      const opts = coerceTypesInOptions({ a: true, b: 'true', c: false, d: 'true' }, {
         properties: {
           a: { type: 'boolean' },
           b: { type: 'boolean' },
@@ -31,7 +31,7 @@ describe('params', () => {
 
 
     it('should handle numbers', () => {
-      const opts = coerceTypes({ a: 1, b: '2', c: '3' }, {
+      const opts = coerceTypesInOptions({ a: 1, b: '2', c: '3' }, {
         properties: {
           a: { type: 'number' },
           b: { type: 'number' },
@@ -47,7 +47,7 @@ describe('params', () => {
     });
 
     it('should handle arrays', () => {
-      const opts = coerceTypes({ a: 'one,two', b: 'three,four' }, {
+      const opts = coerceTypesInOptions({ a: 'one,two', b: 'three,four' }, {
         properties: {
           a: { type: 'array' },
           b: { type: 'string' },

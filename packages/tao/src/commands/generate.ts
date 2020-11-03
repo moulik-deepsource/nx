@@ -190,7 +190,7 @@ export async function generate(
 
     if (ws.isNxSchematic(opts.collectionName, opts.schematicName)) {
       const { schema, implementation } = ws.readSchematic(opts.collectionName, opts.schematicName);
-      const combinedOpts = combineOptionsForSchematic(opts.schematicOptions, opts.collectionName, opts.schematicName, workspaceDefinition, schema);
+      const combinedOpts = await combineOptionsForSchematic(opts.schematicOptions, opts.collectionName, opts.schematicName, workspaceDefinition, schema, opts.interactive);
       const host = new FsTree(root, isVerbose, logger);
       await implementation(combinedOpts)(host);
       const changes = host.listChanges();

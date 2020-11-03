@@ -25,7 +25,7 @@ forEachCli(() => {
 
       const command = `echo "$SHARED_VAR $ROOT_ONLY $NESTED_ONLY"`;
       const envFile = `apps/${nodeapp}/.custom.env`;
-      runCLI(`generate @nrwl/workspace:run-commands echoEnvVariables --command='${command}' --envFile='${envFile}' --project=${nodeapp}`);
+      runCLI(`generate @nrwl/workspace:run-commands echoEnvVariables --command='${command}' --envFile='${envFile}' --project=${nodeapp} --no-interactive`);
 
       const result = runCLI('echoEnvVariables');
       expect(result).toContain('shared-root-value');

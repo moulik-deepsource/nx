@@ -4,6 +4,7 @@ import * as path from 'path';
 export interface WorkspaceDefinition {
   projects: { [projectName: string]: ProjectDefinition };
   defaultProject: string | undefined;
+  schematics: { [collectionName: string]: { [schematicName: string]: any } };
   cli: { defaultCollection: string; };
 }
 

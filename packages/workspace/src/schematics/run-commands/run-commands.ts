@@ -20,5 +20,5 @@ export default function (schema: Schema) {
       },
     };
     return json;
-  });
+  }) as any;
 }
